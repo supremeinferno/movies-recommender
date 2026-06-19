@@ -1,9 +1,9 @@
+# Environment Variables
+.env
+
 # Virtual Environment
 .venv/
 venv/
-
-# Environment Variables
-.env
 
 # Python
 __pycache__/
