@@ -1,6 +1,7 @@
 import requests
 import streamlit as st
 from typing import Optional
+import inspect
 
 # =============================
 # CONFIG
@@ -9,6 +10,36 @@ API_BASE = "https://movie-rec-466x.onrender.com" or "http://127.0.0.1:8000"
 TMDB_IMG = "https://image.tmdb.org/t/p/w500"
 
 st.set_page_config(page_title="CineVerse", page_icon="🎬", layout="wide")
+
+# =============================
+# COMPAT: st.image width param
+# Streamlit renamed use_column_width -> use_container_width across
+# versions. Detect which one this install actually supports so the
+# app never breaks (or shows deprecation warnings) on either side.
+# =============================
+_IMAGE_WIDTH_KW = (
+    "use_container_width"
+    if "use_container_width" in inspect.signature(st.image).parameters
+    else "use_column_width"
+)
+
+
+def show_image(src, **kwargs):
+    kwargs[_IMAGE_WIDTH_KW] = True
+    st.image(src, **kwargs)
+
+
+_BUTTON_WIDTH_KW = (
+    "use_container_width"
+    if "use_container_width" in inspect.signature(st.button).parameters
+    else None
+)
+
+
+def full_width_button(label, **kwargs):
+    if _BUTTON_WIDTH_KW:
+        kwargs[_BUTTON_WIDTH_KW] = True
+    return st.button(label, **kwargs)
 
 # =============================
 # STYLES — Apple TV+ inspired
@@ -80,14 +111,6 @@ section[data-testid="stSidebar"] .stButton button:hover{
     transform:translateY(-1px);
 }
 
-section[data-testid="stSidebar"] .stRadio label{
-    font-size:15px;
-}
-
-section[data-testid="stSidebar"] .stRadio [data-baseweb="radio"] div:first-child{
-    border-color:var(--muted) !important;
-}
-
 section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="slider"]{
     background:var(--accent) !important;
 }
@@ -129,26 +152,79 @@ section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="sli
     font-weight:400;
 }
 
-.stTextInput{ margin-top:10px; }
+/* =========================
+   PREMIUM SEARCH BAR
+========================= */
+
+.stTextInput{
+    margin-top:10px;
+    margin-bottom:25px;
+}
 
 .stTextInput input{
-    background:var(--card) !important;
-    border:1px solid var(--border) !important;
-    outline:none !important;
-    height:62px;
-    border-radius:16px;
-    color:var(--text);
-    font-size:17px;
-    padding-left:20px;
+
+    background:rgba(15,23,42,.90) !important;
+
+    border:1px solid rgba(255,255,255,.08) !important;
+
+    border-radius:22px !important;
+
+    height:72px !important;
+
+    color:#ffffff !important;
+
+    font-size:18px !important;
+
+    font-weight:500 !important;
+
+    padding-left:24px !important;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.03);
+
+    transition:all .3s ease !important;
 }
+
+/* Hover */
+
+.stTextInput input:hover{
+
+    border:1px solid rgba(255,255,255,.15) !important;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.35);
+}
+
+/* Focus */
 
 .stTextInput input:focus{
-    box-shadow:0 0 0 2px var(--accent) !important;
-    border-color:var(--accent) !important;
+
+    border:1px solid #fa2d48 !important;
+
+    box-shadow:
+        0 0 0 4px rgba(250,45,72,.12),
+        0 15px 40px rgba(250,45,72,.15) !important;
 }
 
+/* Placeholder */
+
 .stTextInput input::placeholder{
-    color:var(--muted);
+
+    color:#94a3b8 !important;
+
+    font-size:16px !important;
+
+    font-weight:400 !important;
+}
+
+/* Remove Streamlit Red Outline */
+
+.stTextInput div[data-baseweb="input"]{
+
+    border:none !important;
+
+    background:transparent !important;
 }
 
 .section-title{
@@ -343,7 +419,7 @@ def poster_grid(cards, cols=6, key_prefix="grid"):
             with colset[c]:
                 st.markdown("<div class='poster-card'>", unsafe_allow_html=True)
                 if poster:
-                    st.image(poster, use_column_width=True)
+                    show_image(poster)
                 else:
                     st.write("🖼️ No poster")
 
@@ -450,31 +526,8 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="color:#636366; font-size:11px; font-weight:700; letter-spacing:2px; margin-bottom:12px;">
-        NAVIGATION
-    </div>
-    """, unsafe_allow_html=True)
-
-    if st.button("🏠 Home", use_container_width=True):
+    if full_width_button("🏠 Home"):
         goto_home()
-
-    st.markdown("")
-
-    home_category_label = st.radio(
-        "Browse",
-        ["🔥 trending", "⭐ top_rated", "🎬 upcoming", "🍿 now_playing", "📈 popular"],
-        label_visibility="collapsed",
-    )
-
-    category_map = {
-        "🔥 trending": "trending",
-        "⭐ top_rated": "top_rated",
-        "🎬 upcoming": "upcoming",
-        "🍿 now_playing": "now_playing",
-        "📈 popular": "popular",
-    }
-    home_category = category_map[home_category_label]
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -606,7 +659,7 @@ def render_details():
 
     with left:
         if data.get("poster_url"):
-            st.image(data["poster_url"], use_column_width=True)
+            show_image(data["poster_url"])
 
     with right:
         release = data.get("release_date", "-")
