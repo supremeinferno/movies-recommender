@@ -727,3 +727,6 @@ if st.session_state.view == "home":
     render_home()
 elif st.session_state.view == "details":
     render_details()
+
+
+#python3 -m streamlit run app.py                                              
