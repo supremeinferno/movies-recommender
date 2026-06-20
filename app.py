@@ -154,79 +154,114 @@ section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="sli
 
 /* =========================
    PREMIUM SEARCH BAR
-========================= */
+   ========================= */
 
-.stTextInput{
-    margin-top:10px;
-    margin-bottom:25px;
+.stTextInput {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    position: relative;
 }
 
-.stTextInput input{
+/* Fix the clipping: target ALL Streamlit wrapper layers */
+.stTextInput > div,
+.stTextInput div[data-baseweb="base-input"],
+.stTextInput div[data-baseweb="input"] {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 22px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    overflow: visible !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: none !important;
+}
 
-    background:rgba(15,23,42,.90) !important;
-
-    border:1px solid rgba(255,255,255,.08) !important;
-
-    border-radius:22px !important;
-
-    height:72px !important;
-
-    color:#ffffff !important;
-
-    font-size:18px !important;
-
-    font-weight:500 !important;
-
-    padding-left:24px !important;
-
+.stTextInput input {
+    background: rgba(15, 23, 42, 0.90) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 22px !important;
+    height: 72px !important;
+    line-height: 72px !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    font-weight: 500 !important;
+    padding: 0 24px !important;
+    box-sizing: border-box !important;
     box-shadow:
-        0 8px 30px rgba(0,0,0,.30),
-        inset 0 1px 0 rgba(255,255,255,.03);
-
-    transition:all .3s ease !important;
+        0 8px 30px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    transition: all 0.3s ease !important;
+    position: relative;
+    z-index: 1;
 }
 
 /* Hover */
-
-.stTextInput input:hover{
-
-    border:1px solid rgba(255,255,255,.15) !important;
-
+.stTextInput input:hover {
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
     box-shadow:
-        0 12px 35px rgba(0,0,0,.35);
+        0 12px 35px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* Focus */
-
-.stTextInput input:focus{
-
-    border:1px solid #fa2d48 !important;
-
+/* Focus — soft glow, no red ring */
+.stTextInput input:focus {
+    border: 1px solid rgba(129, 140, 248, 0.55) !important;
+    background: rgba(20, 24, 48, 0.92) !important;
     box-shadow:
-        0 0 0 4px rgba(250,45,72,.12),
-        0 15px 40px rgba(250,45,72,.15) !important;
+        0 0 0 4px rgba(99, 102, 241, 0.14),
+        0 0 24px rgba(129, 140, 248, 0.20),
+        0 15px 40px rgba(0, 0, 0, 0.40) !important;
+}
+
+/* Animated rotating gradient glow behind the box on focus */
+.stTextInput::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    height: 72px;
+    border-radius: 24px;
+    padding: 1.5px;
+    background: conic-gradient(
+        from var(--angle, 0deg),
+        #6366f1, #8b5cf6, #fa2d48, #6366f1
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: rotateGlow 4s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stTextInput:has(input:focus)::before {
+    opacity: 1;
+}
+
+@keyframes rotateGlow {
+    to { --angle: 360deg; }
+}
+
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
 }
 
 /* Placeholder */
-
-.stTextInput input::placeholder{
-
-    color:#94a3b8 !important;
-
-    font-size:16px !important;
-
-    font-weight:400 !important;
+.stTextInput input::placeholder {
+    color: #94a3b8 !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.2px;
 }
 
-/* Remove Streamlit Red Outline */
 
-.stTextInput div[data-baseweb="input"]{
-
-    border:none !important;
-
-    background:transparent !important;
-}
-
+             
 .section-title{
     font-size:32px;
     font-weight:800;
