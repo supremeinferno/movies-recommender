@@ -259,8 +259,6 @@ section[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="sli
     font-weight: 400 !important;
     letter-spacing: 0.2px;
 }
-
-
              
 .section-title{
     font-size:32px;
